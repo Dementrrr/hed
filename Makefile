@@ -170,9 +170,9 @@ ifneq ($(CPU_ONLY), 1)
 	LIBRARIES := cudart cublas curand
 endif
 LIBRARIES += glog gflags protobuf leveldb snappy \
-	lmdb boost_system hdf5_hl hdf5 m \
-	opencv_core opencv_highgui opencv_imgproc
-PYTHON_LIBRARIES := boost_python python2.7
+	lmdb boost_system hdf5_serial_hl hdf5_serial m \
+	opencv_core opencv_highgui opencv_imgproc opencv_imgcodecs
+PYTHON_LIBRARIES := boost_python312 python3.12
 WARNINGS := -Wall -Wno-sign-compare
 
 ##############################
@@ -349,7 +349,7 @@ CXXFLAGS += -MMD -MP
 
 # Complete build flags.
 COMMON_FLAGS += $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))
-CXXFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS)
+CXXFLAGS += -pthread -fPIC $(foreach includedir,$(PYTHON_INCLUDE),-I$(includedir)) $(COMMON_FLAGS) $(WARNINGS)
 NVCCFLAGS += -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS)
 # mex may invoke an older gcc that is too liberal with -Wuninitalized
 MATLAB_CXXFLAGS := $(CXXFLAGS) -Wno-uninitialized
@@ -444,7 +444,7 @@ py: $(PY$(PROJECT)_SO) $(PROTO_GEN_PY)
 $(PY$(PROJECT)_SO): $(PY$(PROJECT)_SRC) $(PY$(PROJECT)_HXX) | $(DYNAMIC_NAME)
 	@ echo CXX/LD -o $@ $<
 	$(Q)$(CXX) -shared -o $@ $(PY$(PROJECT)_SRC) \
-		-o $@ $(LINKFLAGS) -l$(PROJECT) $(PYTHON_LDFLAGS) \
+		$(CXXFLAGS) $(LINKFLAGS) -l$(PROJECT) $(PYTHON_LDFLAGS) \
 		-Wl,-rpath,$(ORIGIN)/../../build/lib
 
 mat$(PROJECT): mat

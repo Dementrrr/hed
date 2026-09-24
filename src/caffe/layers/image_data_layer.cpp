@@ -1,4 +1,4 @@
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 #include <fstream>  // NOLINT(readability/streams)
 #include <iostream>  // NOLINT(readability/streams)
